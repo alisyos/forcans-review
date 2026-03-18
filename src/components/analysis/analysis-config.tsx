@@ -17,7 +17,8 @@ interface Props {
 }
 
 export function AnalysisConfig({ onAnalyze, isLoading }: Props) {
-  const products = useReviewStore((s) => s.getProductList())
+  const { getProductList } = useReviewStore()
+  const products = getProductList()
   const [config, setConfig] = useState<AnalysisConfigType>({
     mode: 'sampling',
     samplingStrategy: 'random',

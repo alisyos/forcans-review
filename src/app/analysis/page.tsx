@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { AnalysisConfig } from '@/components/analysis/analysis-config'
 import { AnalysisResultView } from '@/components/analysis/analysis-result'
 import { useReviewStore } from '@/store/review-store'
