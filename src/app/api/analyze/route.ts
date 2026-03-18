@@ -55,53 +55,6 @@ export async function POST(request: NextRequest) {
 
     const client = new Anthropic({ apiKey })
 
-    if (config.mode === 'batch' && reviews.length > 100) {
-      const batchSize = 100
-      const batches: ReviewSubset[][] = []
-      for (let i = 0; i < reviews.length; i += batchSize) {
-        batches.push(reviews.slice(i, i + batchSize))
-      }
-
-      const batchResults = []
-      for (const batch of batches) {
-        const reviewText = batch
-          .map((r, i) => `[리뷰 ${i + 1}] 상품: ${r.productName} | 평점: ${r.rating}점\n${r.content}`)
-          .join('\n\n')
-
-        const message = await client.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 2000,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: `다음 ${batch.length}개의 리뷰를 분석해주세요:\n\n${reviewText}` }],
-        })
-
-        const text = message.content[0].type === 'text' ? message.content[0].text : ''
-        try {
-          batchResults.push(JSON.parse(text))
-        } catch {
-          batchResults.push(null)
-        }
-      }
-
-      const validResults = batchResults.filter(Boolean)
-      if (validResults.length === 0) {
-        return NextResponse.json({ error: '분석 결과를 파싱할 수 없습니다.' }, { status: 500 })
-      }
-
-      const merged = {
-        summary: validResults.map((r: Record<string, unknown>) => r.summary).join(' '),
-        sentimentBreakdown: {
-          positive: Math.round(validResults.reduce((sum: number, r: Record<string, { positive: number }>) => sum + r.sentimentBreakdown.positive, 0) / validResults.length),
-          neutral: Math.round(validResults.reduce((sum: number, r: Record<string, { neutral: number }>) => sum + r.sentimentBreakdown.neutral, 0) / validResults.length),
-          negative: Math.round(validResults.reduce((sum: number, r: Record<string, { negative: number }>) => sum + r.sentimentBreakdown.negative, 0) / validResults.length),
-        },
-        keyIssues: validResults.flatMap((r: Record<string, unknown>) => r.keyIssues as unknown[]).slice(0, 10),
-        recommendations: Array.from(new Set(validResults.flatMap((r: Record<string, unknown>) => r.recommendations as string[]))).slice(0, 10),
-      }
-
-      return NextResponse.json(merged)
-    }
-
     const reviewText = reviews
       .map((r, i) => `[리뷰 ${i + 1}] 상품: ${r.productName} | 평점: ${r.rating}점\n${r.content}`)
       .join('\n\n')

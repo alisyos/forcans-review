@@ -11,16 +11,37 @@ export function calculateRatingDistribution(reviews: Review[]): RatingDistributi
   return [1, 2, 3, 4, 5].map(rating => ({ rating, count: dist[rating] }))
 }
 
-export function calculateDateTrends(reviews: Review[]): DateTrend[] {
+export type DateGranularity = 'daily' | 'weekly' | 'monthly'
+
+function getWeekMonday(dateStr: string): string {
+  const date = new Date(dateStr)
+  const day = date.getDay()
+  const diff = day === 0 ? 6 : day - 1
+  date.setDate(date.getDate() - diff)
+  return date.toISOString().substring(0, 10)
+}
+
+export function calculateDateTrends(reviews: Review[], granularity: DateGranularity = 'daily'): DateTrend[] {
   const map = new Map<string, { count: number; totalRating: number }>()
 
   reviews.forEach(r => {
     if (!r.createdAt) return
-    const month = r.createdAt.substring(0, 7)
-    const entry = map.get(month) || { count: 0, totalRating: 0 }
+    let key: string
+    switch (granularity) {
+      case 'daily':
+        key = r.createdAt.substring(0, 10)
+        break
+      case 'weekly':
+        key = getWeekMonday(r.createdAt)
+        break
+      case 'monthly':
+        key = r.createdAt.substring(0, 7)
+        break
+    }
+    const entry = map.get(key) || { count: 0, totalRating: 0 }
     entry.count++
     entry.totalRating += r.rating
-    map.set(month, entry)
+    map.set(key, entry)
   })
 
   return Array.from(map.entries())
@@ -81,6 +102,7 @@ export function calculateAllStatistics(reviews: Review[]): ReviewStatistics {
     productSummaries: calculateProductSummaries(reviews),
     topKeywords: extractKeywords(allContent, 20),
     totalReviews: reviews.length,
+    totalProducts: new Set(reviews.map(r => r.productId)).size,
     avgRating: reviews.length > 0 ? Math.round((totalRating / reviews.length) * 10) / 10 : 0,
   }
 }

@@ -8,9 +8,9 @@ import { cn } from '@/lib/utils'
 const menuItems = [
   { href: '/', label: '파일 업로드', icon: Upload },
   { href: '/statistics', label: '통계 분석', icon: BarChart3 },
-  { href: '/reviews', label: '리뷰 목록', icon: List },
+  { href: '/comparison', label: '상품 비교 분석', icon: GitCompare },
   { href: '/analysis', label: 'AI 분석', icon: Brain },
-  { href: '/comparison', label: '상품 비교', icon: GitCompare },
+  { href: '/reviews', label: '리뷰 목록', icon: List },
 ]
 
 export function Sidebar() {

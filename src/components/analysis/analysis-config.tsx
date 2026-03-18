@@ -48,15 +48,11 @@ export function AnalysisConfig({ onAnalyze, isLoading }: Props) {
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="sampling" id="sampling" />
-              <Label htmlFor="sampling">샘플링 분석 - 무작위 샘플 추출 후 분석</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="batch" id="batch" />
-              <Label htmlFor="batch">배치 분석 - 전체 리뷰를 배치로 나눠 분석</Label>
+              <Label htmlFor="sampling">샘플링 분석 - 무작위 또는 작성일 기준 샘플 추출 후 분석</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="per-product" id="per-product" />
-              <Label htmlFor="per-product">상품별 분석 - 특정 상품의 리뷰만 분석</Label>
+              <Label htmlFor="per-product">상품별 분석 – 특정 선택 상품의 리뷰만 분석</Label>
             </div>
           </RadioGroup>
         </div>

@@ -49,11 +49,12 @@ export interface ReviewStatistics {
   productSummaries: ProductSummary[]
   topKeywords: KeywordItem[]
   totalReviews: number
+  totalProducts: number
   avgRating: number
 }
 
 export interface AnalysisConfig {
-  mode: 'sampling' | 'batch' | 'per-product'
+  mode: 'sampling' | 'per-product'
   samplingStrategy: 'random' | 'recent' | 'low-rating'
   sampleSize: number
   targetProductId?: string

@@ -1,19 +1,30 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useReviewStore } from '@/store/review-store'
+import { ChevronDown, ChevronUp, Search } from 'lucide-react'
 
 const COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
 
 export function ProductComparison() {
   const statistics = useReviewStore((s) => s.statistics)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const summaries = statistics?.productSummaries || []
+
+  useEffect(() => {
+    if (summaries.length > 0) {
+      const top5 = new Set(summaries.slice(0, 5).map(s => s.productId))
+      setSelectedIds(top5)
+    }
+  }, [summaries])
 
   const toggleProduct = (id: string) => {
     setSelectedIds(prev => {
@@ -50,27 +61,46 @@ export function ProductComparison() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">비교할 상품 선택</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {summaries.map((s) => (
-              <label
-                key={s.productId}
-                className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                  selectedIds.has(s.productId) ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'
-                }`}
-              >
-                <Checkbox
-                  checked={selectedIds.has(s.productId)}
-                  onCheckedChange={() => toggleProduct(s.productId)}
-                />
-                <span className="text-sm truncate">{s.productName}</span>
-              </label>
-            ))}
+        <CardHeader
+          className="cursor-pointer select-none"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">비교할 상품 선택 ({selectedIds.size}개 선택됨)</CardTitle>
+            {isOpen ? <ChevronUp className="h-5 w-5 text-gray-500" /> : <ChevronDown className="h-5 w-5 text-gray-500" />}
           </div>
-        </CardContent>
+        </CardHeader>
+        {isOpen && (
+          <CardContent>
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="상품명 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {summaries
+                .filter((s) => s.productName.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((s) => (
+                <label
+                  key={s.productId}
+                  className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedIds.has(s.productId) ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <Checkbox
+                    checked={selectedIds.has(s.productId)}
+                    onCheckedChange={() => toggleProduct(s.productId)}
+                  />
+                  <span className="text-sm truncate">{s.productName}</span>
+                </label>
+              ))}
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {selectedSummaries.length > 0 && (

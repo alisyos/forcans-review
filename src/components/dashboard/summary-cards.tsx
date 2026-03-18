@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageSquare, Star, Camera, MessageCircleOff } from 'lucide-react'
+import { Package, MessageSquare, Star, MessageCircleOff } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { useReviewStore } from '@/store/review-store'
 import type { ReviewStatistics } from '@/types/review'
@@ -17,6 +17,13 @@ export function SummaryCards({ statistics: propStatistics }: SummaryCardsProps =
 
   const cards = [
     {
+      label: '총 상품 수',
+      value: statistics.totalProducts.toLocaleString(),
+      icon: Package,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+    },
+    {
       label: '총 리뷰 수',
       value: statistics.totalReviews.toLocaleString(),
       icon: MessageSquare,
@@ -29,13 +36,6 @@ export function SummaryCards({ statistics: propStatistics }: SummaryCardsProps =
       icon: Star,
       color: 'text-yellow-600',
       bg: 'bg-yellow-50',
-    },
-    {
-      label: '포토 리뷰 비율',
-      value: `${statistics.photoReviewRatio}%`,
-      icon: Camera,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
     },
     {
       label: '미답글 수',

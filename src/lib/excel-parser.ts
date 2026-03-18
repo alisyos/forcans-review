@@ -57,6 +57,13 @@ function normalizeBoolean(value: unknown): boolean {
   return true
 }
 
+function isMediaUrl(value: unknown): boolean {
+  if (!value) return false
+  const str = String(value).trim()
+  if (!str) return false
+  return str.startsWith('http://') || str.startsWith('https://')
+}
+
 function normalizeRating(value: unknown): number {
   const num = Number(value)
   if (isNaN(num)) return 0
@@ -97,7 +104,7 @@ export function parseExcel(arrayBuffer: ArrayBuffer): { reviews: Review[]; error
           review.rating = normalizeRating(value)
           break
         case 'hasMedia':
-          review.hasMedia = normalizeBoolean(value)
+          review.hasMedia = isMediaUrl(value)
           break
         case 'hasReply':
           review.hasReply = normalizeBoolean(value)

@@ -17,6 +17,8 @@ import {
 import { RatingDistribution } from '@/components/statistics/rating-distribution'
 import { DateTrendChart } from '@/components/statistics/date-trend-chart'
 import { PhotoReviewStats } from '@/components/statistics/photo-review-stats'
+import { ReviewTypeStats } from '@/components/statistics/review-type-stats'
+import { ProductTop10Chart } from '@/components/statistics/product-top10-chart'
 import { KeywordFrequency } from '@/components/statistics/keyword-frequency'
 import { BestReviewStats } from '@/components/statistics/best-review-stats'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
@@ -45,19 +47,23 @@ export default function StatisticsPage() {
     setDateTo('')
   }
 
-  const filteredStats = useMemo(() => {
+  const filteredReviews = useMemo(() => {
     const noProductFilter = productFilterMode === 'all'
     const noDateFilter = !dateFrom && !dateTo
-    if (noProductFilter && noDateFilter) return statistics
+    if (noProductFilter && noDateFilter) return reviews
 
-    const filtered = reviews.filter(r => {
+    return reviews.filter(r => {
       if (!noProductFilter && selectedProducts.length > 0 && !selectedProducts.includes(r.productId)) return false
       if (dateFrom && r.createdAt < dateFrom) return false
       if (dateTo && r.createdAt > dateTo) return false
       return true
     })
-    return calculateAllStatistics(filtered)
-  }, [reviews, statistics, productFilterMode, selectedProducts, dateFrom, dateTo])
+  }, [reviews, productFilterMode, selectedProducts, dateFrom, dateTo])
+
+  const filteredStats = useMemo(() => {
+    if (filteredReviews === reviews && statistics) return statistics
+    return calculateAllStatistics(filteredReviews)
+  }, [filteredReviews, reviews, statistics])
 
   if (!filteredStats || reviews.length === 0) {
     return (
@@ -171,9 +177,11 @@ export default function StatisticsPage() {
 
       <div className="grid grid-cols-2 gap-6 mt-6">
         <RatingDistribution data={filteredStats.ratingDistribution} />
-        <DateTrendChart data={filteredStats.dateTrends} />
-        <PhotoReviewStats photoRatio={filteredStats.photoReviewRatio} />
+        <DateTrendChart data={filteredStats.dateTrends} reviews={filteredReviews} />
+        <ReviewTypeStats reviews={filteredReviews} />
+        <PhotoReviewStats photoRatio={filteredStats.photoReviewRatio} reviews={filteredReviews} />
         <KeywordFrequency data={filteredStats.topKeywords} />
+        <ProductTop10Chart summaries={filteredStats.productSummaries} />
       </div>
 
       <div className="mt-6">

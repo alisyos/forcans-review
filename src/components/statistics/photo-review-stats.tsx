@@ -2,17 +2,23 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Review } from '@/types/review'
 
 interface Props {
   photoRatio: number
+  reviews?: Review[]
 }
 
-const COLORS = ['#22c55e', '#e5e7eb']
+const COLORS = ['#22c55e', '#9ca3af']
 
-export function PhotoReviewStats({ photoRatio }: Props) {
+export function PhotoReviewStats({ photoRatio, reviews }: Props) {
+  const photoCount = reviews ? reviews.filter(r => r.hasMedia).length : 0
+  const textCount = reviews ? reviews.length - photoCount : 0
+  const textRatio = Math.round((100 - photoRatio) * 10) / 10
+
   const data = [
-    { name: '포토/영상 리뷰', value: photoRatio },
-    { name: '텍스트 리뷰', value: Math.round((100 - photoRatio) * 10) / 10 },
+    { name: '포토/영상 리뷰', value: photoRatio, count: photoCount },
+    { name: '텍스트 리뷰', value: textRatio, count: textCount },
   ]
 
   return (
@@ -30,13 +36,19 @@ export function PhotoReviewStats({ photoRatio }: Props) {
               innerRadius={60}
               outerRadius={100}
               dataKey="value"
-              label={({ name, value }) => `${name}: ${value}%`}
+              label={({ name, value, count }) =>
+                reviews ? `${name}: ${count}건(${value}%)` : `${name}: ${value}%`
+              }
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => `${value}%`} />
+            <Tooltip
+              formatter={(value: number, name: string, props: { payload: { count: number } }) =>
+                reviews ? `${props.payload.count}건(${value}%)` : `${value}%`
+              }
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
