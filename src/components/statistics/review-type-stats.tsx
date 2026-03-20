@@ -55,7 +55,7 @@ export function ReviewTypeStats({ reviews }: Props) {
                 <Cell key={`cell-${index}`} fill={COLORS[index]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number, name: string, props: { payload: { count: number } }) => `${props.payload.count}건(${value}%)`} />
+            <Tooltip formatter={(value: number, name: string, props: { payload?: { count: number } }) => props.payload ? `${props.payload.count}건(${value}%)` : `${value}%`} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

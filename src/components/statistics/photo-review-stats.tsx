@@ -45,8 +45,8 @@ export function PhotoReviewStats({ photoRatio, reviews }: Props) {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number, name: string, props: { payload: { count: number } }) =>
-                reviews ? `${props.payload.count}건(${value}%)` : `${value}%`
+              formatter={(value: number, name: string, props: { payload?: { count: number } }) =>
+                reviews && props.payload ? `${props.payload.count}건(${value}%)` : `${value}%`
               }
             />
             <Legend />
